@@ -2,8 +2,6 @@
 
 @section('content')
 
-<script src="{{ asset('js/user-list.js') }}"></script>
-
 <div class="container mt-5 position-relative">
   <div class="alert-message d-flex justify-content-end position-absolute top-0 end-0 z-1">
     @if(session('info'))
@@ -71,11 +69,11 @@
               <tr>
                 <td>{{$user->id}}</td>
                 <td>
-                  <a href="#" class="user-name" onclick="showUserDetail({{json_encode($user)}})" data-bs-toggle="modal"
+                  <a href="#" class="user-name" onclick="User.prototype.showUserDetail({{$user}}, {{$user->createdBy}}, {{$user->updatedBy}})" data-bs-toggle="modal"
                     data-bs-target="#user-detail-modal">{{$user->name}}</a>
                 </td>
                 <td>{{$user->email}}</td>
-                <td>{{$user->created_user}}</td>
+                <td>{{$user->createdBy->name}}</td>
                 <td>{{ $user->type == 0 ? 'Admin' : 'User' }}</td>
                 <td>{{$user->phone}}</td>
                 <td>{{date('Y/m/d', strtotime($user->dob))}}</td>
@@ -84,7 +82,7 @@
                 <td>{{date('Y/m/d', strtotime($user->updated_at))}}</td>
                 <td>
                   @if($user->id != auth()->user()->id)
-                  <button type="button" class="btn btn-danger" onclick="showDeleteConfirm({{json_encode($user)}})"
+                  <button type="button" class="btn btn-danger" onclick="User.prototype.showDeleteConfirm({{$user}})"
                     data-bs-toggle="modal" data-bs-target="#user-delete-modal">Delete</button>
                   @endif
                 </td>

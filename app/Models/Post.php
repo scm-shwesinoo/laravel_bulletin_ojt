@@ -10,4 +10,14 @@ class Post extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = ['title', 'description', 'status', 'created_user_id', 'updated_user_id', 'deleted_user_id', 'created_at'];
+
+    public function createdBy() 
+    {
+        return $this->belongsTo(User::class, 'created_user_id');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_user_id');
+    }
 }

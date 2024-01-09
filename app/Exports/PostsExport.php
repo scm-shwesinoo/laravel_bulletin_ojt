@@ -2,12 +2,11 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\Exportable;
+use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Query\Builder;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
 class PostsExport implements FromCollection, WithHeadings
 {
@@ -22,26 +21,22 @@ class PostsExport implements FromCollection, WithHeadings
     }
     public function collection()
     {
-        $data = DB::table('posts as post')
-        ->join('users as created_user', 'post.created_user_id', '=', 'created_user.id')
-        ->join('users as updated_user', 'post.updated_user_id', '=', 'updated_user.id')
-        ->select('post.title', 'post.description', 'created_user.name as created_user', 'post.created_at')
-        ->whereNull('post.deleted_at');
+        $data = Post::select('title', 'description', 'created_user_id', 'created_at')->whereNull('deleted_at');
         if (!Auth::check()) {
-          $data = $data->where('post.status', 1);
+          $data = $data->where('status', 1);
         } else {
           $authType = Auth::user()->type;
           if ($authType == 1) {
-              $data = $data->where(function (Builder $query) {
-                      $query->where('post.created_user_id', Auth::user()->id)
-                            ->orWhere('post.status', '1');
+              $data = $data->where(function ($query) {
+                      $query->where('created_user_id', auth()->user()->id)
+                            ->orWhere('status', '1');
               });
             }
           }
           if ($this->request) {
-              $data = $data->where(function (Builder $query){
-                      $query->where('post.title', 'like', '%' . trim($this->request) . '%')
-                            ->orWhere('post.description', 'like', '%' . trim($this->request) . '%');
+              $data = $data->where(function ($query){
+                      $query->where('title', 'like', '%' . trim($this->request) . '%')
+                            ->orWhere('description', 'like', '%' . trim($this->request) . '%');
             });
           }
     return $data->get();

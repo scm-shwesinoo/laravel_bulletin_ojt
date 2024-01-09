@@ -6,38 +6,31 @@ use App\Contracts\Dao\Post\PostDaoInterface;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\PostsImport;
-use Illuminate\Database\Query\Builder;
 
 class PostDao implements PostDaoInterface
 {
   public function getPostList(Request $request)
   {
     $pageSize = $request->input('page_size', 10);
-    $data = DB::table('posts as post')
-            ->join('users as created_user', 'post.created_user_id', '=', 'created_user.id')
-            ->join('users as updated_user', 'post.updated_user_id', '=', 'updated_user.id')
-            ->select('post.*', 'created_user.name as created_user', 'updated_user.name as updated_user')
-            ->whereNull('post.deleted_at');
-
+    $data = Post::whereNull('deleted_at');
       if (!Auth::check()) {
-        $data = $data->where('post.status', 1);
+        $data = $data->where('status', 1);
       } else {
         $authType = Auth::user()->type;
         if ($authType == 1) {
-            $data = $data->where(function (Builder $query) {
-                      $query->where('post.created_user_id', Auth::user()->id)
-                      ->orWhere('post.status', '1');
-            });
-      }
+          $data = $data->where(function ($query) {
+                    $query->where('created_user_id', auth()->user()->id)
+                    ->orWhere('status', '1');
+          });
+        }
       }
     if (request()->has('search')) {
-      $data = $data->where(function (Builder $query) use ($request){
-              $query->where('post.title', 'like', '%' . trim($request->search) . '%')
-                    ->orWhere('post.description', 'like', '%' . trim($request->search) . '%');
-    });
+      $data = $data->where(function ($query) use ($request){
+                    $query->where('title', 'like', '%' . trim($request->search) . '%')
+                    ->orWhere('description', 'like', '%' . trim($request->search) . '%');
+      });
     }
     return $data->orderBy('id', 'desc')->paginate($pageSize);
   }

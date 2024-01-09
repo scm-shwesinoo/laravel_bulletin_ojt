@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Styles -->
-<link href="{{ asset('css/profile.css') }}" rel="stylesheet">
 
 <div class="container mt-5 position-relative">
   <div class="alert-message d-flex justify-content-end position-absolute top-0 end-0 z-1">
@@ -14,7 +12,7 @@
     @endif
   </div>
 
-  <div class="row justify-content-center">
+  <div class="row justify-content-center profile-view">
     <div class="col-md-8">
       <div class="card">
         <div class="card-header">{{ __('Profile') }}</div>

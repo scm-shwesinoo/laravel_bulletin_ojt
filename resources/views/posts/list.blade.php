@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<script src="{{ asset('js/post-list.js') }}"></script>
 
 <div class="container mt-5 position-relative">
   <div class="alert-message d-flex justify-content-end position-absolute top-0 end-0 z-1">
@@ -70,16 +69,16 @@
               @if (count($postList) > 0)
               @foreach($postList as $post)
               <tr>
-                <td style="width: 20%;"><a href="#" onclick="showPostDetail({{json_encode($post)}})"
+                <td style="width: 20%;"><a href="#" onclick="Post.prototype.showPostDetail({{$post}}, {{$post->createdBy}}, {{$post->updatedBy}})"
                     data-bs-toggle="modal" data-bs-target="#post-detail-modal">{{$post->title}}</a></td>
                 <td style="width: 40%;">{{$post->description}}</td>
-                <td style="width: 12%;">{{$post->created_user}}</td>
+                <td style="width: 12%;">{{$post->createdBy->name ?? ''}}</td>
                 <td style="width: 12%;">{{date('Y/m/d', strtotime($post->created_at))}}</td>
                 @if(auth()->user() && (auth()->user()->type == 0 || auth()->user()->type == 1))
                 <td style="width: 15%;">
                   @if(auth()->user()->id == $post->created_user_id)
                   <a type="button" class="btn btn-primary" href="/post/edit/{{$post->id}}">Edit</a>
-                  <button type="button" onclick="showDeleteConfirm({{json_encode($post)}})" class="btn btn-danger"
+                  <button type="button" onclick="Post.prototype.showDeleteConfirm({{$post}})" class="btn btn-danger post-delete"
                     data-bs-toggle="modal" data-bs-target="#post-delete-modal">Delete</button>
                   @endif
                 </td>
@@ -176,7 +175,7 @@
                   <div class="modal-body" id="post-delete">
                     @csrf
                     @method('DELETE')
-                    <input id="postId" name="postId" hidden value="">
+                    <input type="hidden" id="postId" name="postId" value="">
                     <h4 class="delete-confirm-header">Are you sure to delete post?</h4>
                     <div class="row mb-2">
                       <label class="col-md-4 text-start">{{ __('ID') }}</label>
@@ -218,4 +217,5 @@
     </div>
   </div>
 </div>
+
 @endsection
