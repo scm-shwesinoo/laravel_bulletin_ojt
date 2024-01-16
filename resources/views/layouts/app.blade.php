@@ -44,7 +44,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-                        @if(Auth::user() && Auth::user()->type == '0')
+                        @if(auth()->user() && auth()->user()->type == '0')
                         <li class="nav-item">
                             <a class="nav-link {{ (request()->is('user/list')) ? 'text-success' : '' }}" href="{{ url('/user/list') }}">Users</a>
                         </li>
@@ -69,14 +69,14 @@
                         </li>
                         @endif -->
                         @else
-                        @if(Auth::user()->type == '0')
+                        @if(auth()->user()->type == '0')
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('register') }}">{{ __('Create User') }}</a>
                         </li>
                         @endif
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ Auth::user()->name }}
+                                {{ auth()->user()->name }}
                                 <i class="fas fa-user-circle mx-1"></i>
                             </a>
 

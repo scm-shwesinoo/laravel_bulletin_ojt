@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserEditRequest;
 use App\Http\Requests\UserPasswordChangeRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -22,14 +21,14 @@ class UserController extends Controller
 
   public function showUserList(Request $request)
   {
-    $pageSize = $request->input('page_size', 10);
+    $pageSize = $request->page_size ?? 10;
     $userList = $this->userInterface->getUserList($request);
     return view('users.list', compact('userList', 'pageSize'));
   }
 
   public function showUserProfile()
   {
-    $userId = Auth::user()->id;
+    $userId = auth()->user()->id;
     $user = $this->userInterface->getUserById($userId);
     return view('users.profile', compact('user'));
   }
@@ -37,21 +36,20 @@ class UserController extends Controller
   public function showUserProfileEdit()
   {
     $profileName = session('profileName');
-    if (Auth::user()->profile !== $profileName) {
+    if (auth()->user()->profile !== $profileName) {
       if (Storage::disk('public')->exists('images/' . $profileName)) {
         Storage::disk('public')->delete('images/' . $profileName);
       }
     }
-    $userId = Auth::user()->id;
+    $userId = auth()->user()->id;
     $user = $this->userInterface->getUserById($userId);
     return view('users.profile-edit', compact('user'));
   }
 
   public function submitEditProfileView(UserEditRequest $request)
   {
-    // $validator = validator($request->all());
     $validated = $request->validated();
-    $fileName = Auth::user()->profile;
+    $fileName = auth()->user()->profile;
     if (array_key_exists('profile', $validated)) {
       $fileName = time() . '.' . $request->profile->extension();
       $request->profile->storeAs('public/images', $fileName);
@@ -72,7 +70,7 @@ class UserController extends Controller
 
   public function submitProfileEditConfirmView(Request $request)
   {
-    $profileName = Auth::user()->profile;
+    $profileName = auth()->user()->profile;
     if (session('profileName') !== $profileName) {
       if (Storage::disk('public')->exists('images/' . $profileName)) {
         Storage::disk('public')->delete('images/' . $profileName);
@@ -84,8 +82,8 @@ class UserController extends Controller
 
   public function deleteUserById(Request $request)
   {
-    $userId = $request->userId;
-    $deletedUserId = Auth::user()->id;
+    $userId = $request->user_id;
+    $deletedUserId = auth()->user()->id;
     $msg = $this->userInterface->deleteUserById($userId, $deletedUserId);
     return redirect()->route('userlist')->with('info', $msg);
   }

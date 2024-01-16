@@ -8,7 +8,6 @@ use App\Http\Requests\PostCreateRequest;
 use App\Http\Requests\PostEditRequest;
 use App\Http\Requests\PostUploadRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -21,8 +20,8 @@ class PostController extends Controller
 
     public function showPostList(Request $request)
     {
-        $pageSize = $request->input('page_size', 10);
-        $search = $request->input('description');
+        $pageSize = $request->page_size ?? 10;;
+        $search = $request->description;
         $postList = $this->postInterface->getPostList($request);
         return view('posts.list', compact('postList', 'pageSize', 'search'));
     }
@@ -59,8 +58,8 @@ class PostController extends Controller
 
     public function deletePostById(Request $request)
     {
-        $postId = $request->postId;
-        $deletedUserId = Auth::user()->id;
+        $postId = $request->post_id;
+        $deletedUserId = auth()->user()->id;;
         $msg = $this->postInterface->deletePostById($postId, $deletedUserId);
         return redirect()->route('postlist')->with('info', $msg);
     }
@@ -95,7 +94,7 @@ class PostController extends Controller
 
     public function downloadPostCSV(Request $request)
     {
-        $search = $request->input('search');
+        $search = $request->search;
         return $this->postInterface->downloadPostCSV($search);
     }
 
@@ -107,7 +106,7 @@ class PostController extends Controller
     public function submitPostUploadView(PostUploadRequest $request)
     {
         $validated = $request->validated();
-        $uploadedUserId = Auth::user()->id;
+        $uploadedUserId = auth()->user()->id;;
         $content = $this->postInterface->uploadPostCSV($validated, $uploadedUserId);
         if (!$content['isUploaded']) {
             return redirect('/post/upload')->with('error', $content['message']);

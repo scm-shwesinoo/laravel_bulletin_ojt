@@ -21,11 +21,11 @@ class PostsExport implements FromCollection, WithHeadings
     }
     public function collection()
     {
-        $data = Post::select('title', 'description', 'created_user_id', 'created_at')->whereNull('deleted_at');
+        $data = Post::query();
         if (!Auth::check()) {
           $data = $data->where('status', 1);
         } else {
-          $authType = Auth::user()->type;
+          $authType = auth()->user()->type;
           if ($authType == 1) {
               $data = $data->where(function ($query) {
                       $query->where('created_user_id', auth()->user()->id)
@@ -39,7 +39,7 @@ class PostsExport implements FromCollection, WithHeadings
                             ->orWhere('description', 'like', '%' . trim($this->request) . '%');
             });
           }
-    return $data->get();
+      return $data->get(['title', 'description', 'created_user_id', 'created_at']);
     }
 
     public function headings(): array

@@ -32,9 +32,6 @@ Route::get('/post/download', [PostController::class, 'downloadPostCSV'])->name('
 
 Route::get('file-import-export', [PostController::class, 'fileImportExport']);
 Route::post('file-import', [PostController::class, 'fileImport'])->name('file-import');
-// Route::get('file-export', [PostController::class, 'fileExport'])->name('file-export');
-// Route::get('/post/search', [PostController::class,'index'])->name('post.index');
-
 
 // user, admin authorized
 Route::group(['middleware' => ['auth']], function () {

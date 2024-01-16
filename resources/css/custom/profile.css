@@ -1,0 +1,23 @@
+.profile-view .img-blk{
+  position: relative;
+}
+
+.profile-view .profile {
+  width: 150px;
+  height: 150px;
+  border: 5px solid #64ace0;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 0;
+}
+
+.profile-view .profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-view .edit-btn {
+  right: -15px;
+  bottom: -15px;
+}

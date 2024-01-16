@@ -2,46 +2,46 @@
 
 namespace App\Dao\Post;
 
-use App\Contracts\Dao\Post\PostDaoInterface;
 use App\Models\Post;
+use App\Imports\PostsImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\PostsImport;
+use App\Contracts\Dao\Post\PostDaoInterface;
 
 class PostDao implements PostDaoInterface
 {
   public function getPostList(Request $request)
   {
-    $pageSize = $request->input('page_size', 10);
-    $data = Post::whereNull('deleted_at');
+    $pageSize = $request->page_size ?? 10;
+    $postList = Post::query();
       if (!Auth::check()) {
-        $data = $data->where('status', 1);
+        $postList = $postList->where('status', 1);
       } else {
-        $authType = Auth::user()->type;
+        $authType = auth()->user()->type;
         if ($authType == 1) {
-          $data = $data->where(function ($query) {
+          $postList = $postList->where(function ($query) {
                     $query->where('created_user_id', auth()->user()->id)
                     ->orWhere('status', '1');
           });
         }
       }
-    if (request()->has('search')) {
-      $data = $data->where(function ($query) use ($request){
+    if ($request->has('search')) {
+      $postList = $postList->where(function ($query) use ($request){
                     $query->where('title', 'like', '%' . trim($request->search) . '%')
                     ->orWhere('description', 'like', '%' . trim($request->search) . '%');
       });
     }
-    return $data->orderBy('id', 'desc')->paginate($pageSize);
+    return $postList->orderBy('id', 'desc')->paginate($pageSize);
   }
 
   public function savePost(Request $request)
   {
     $post = new Post();
-    $post->title = request()->title;
-    $post->description = request()->description;
-    $post->created_user_id = Auth::user()->id ?? 1;
-    $post->updated_user_id = Auth::user()->id ?? 1;
+    $post->title = $request->title;
+    $post->description = $request->description;
+    $post->created_user_id = auth()->user()->id ?? 1;
+    $post->updated_user_id = auth()->user()->id ?? 1;
     $post->save();
     return $post;
   }
@@ -74,7 +74,7 @@ class PostDao implements PostDaoInterface
     } else {
       $post->status = '0';
     }
-    $post->updated_user_id = Auth::user()->id;
+    $post->updated_user_id = auth()->user()->id;;
     $post->save();
     return 'Post Updated Successfully!';
   }

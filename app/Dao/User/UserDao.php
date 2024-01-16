@@ -5,7 +5,6 @@ namespace App\Dao\User;
 use App\Contracts\Dao\User\UserDaoInterface;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,20 +12,20 @@ class UserDao implements UserDaoInterface
 {
   public function getUserList(Request $request)
   {
-    $pageSize = $request->input('page_size', 10);
-    $userList = User::whereNull('deleted_at');
+    $pageSize = $request->page_size ?? 10;
+    $userList = User::query();
 
-    if (request()->has('search-name')) {
-      $userList = $userList->where('name', 'like', '%' . request()->get('search-name', '') . '%');
+    if ($request->has('search_name')) {
+      $userList = $userList->where('name', 'like', '%' . $request->search_name . '%');
     }
-    if (request()->has('search-email')) {
-      $userList = $userList->where('email', 'like', '%' . request()->get('search-email', '') . '%');
+    if ($request->has('search_email')) {
+      $userList = $userList->where('email', 'like', '%' . $request->search_email . '%');
     }
-    if (!empty($request->dateStart)) {
-      $userList = $userList->whereDate('created_at', '>=', request()->get('dateStart'));
+    if (!empty($request->date_start)) {
+      $userList = $userList->whereDate('created_at', '>=', $request->date_start);
     }
-    if (!empty($request->dateEnd)) {
-      $userList = $userList->whereDate('created_at', '<=', request()->get('dateEnd'));
+    if (!empty($request->date_end)) {
+      $userList = $userList->whereDate('created_at', '<=', $request->date_end);
     }
     return $userList->paginate($pageSize);
   }
@@ -42,15 +41,15 @@ class UserDao implements UserDaoInterface
 
   public function updateUser(Request $request)
   {
-    $user = User::find(Auth::user()->id);
-    $user->name = $request['name'];
-    $user->email = $request['email'];
-    $user->profile = $request['profile'];
-    $user->type = $request['type'];
-    $user->phone = $request['phone'];
-    $user->dob = $request['dob'];
-    $user->address = $request['address'];
-    $user->updated_user_id = Auth::user()->id;
+    $user = User::find(auth()->user()->id);
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->profile = $request->profile;
+    $user->type = $request->type;
+    $user->phone = $request->phone;
+    $user->dob = $request->dob;
+    $user->address = $request->address;
+    $user->updated_user_id = auth()->user()->id;
     $user->save();
     return $user;
   }
@@ -72,7 +71,7 @@ class UserDao implements UserDaoInterface
     $user = User::find(auth()->user()->id)
       ->update([
         'password' => Hash::make($validated['new_password']),
-        'updated_user_id' => Auth::user()->id
+        'updated_user_id' => auth()->user()->id
       ]);
     return $user;
   }
